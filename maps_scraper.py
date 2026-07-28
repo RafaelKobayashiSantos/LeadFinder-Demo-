@@ -6,17 +6,17 @@ import time
 from loader import scroll_to_bottom
 from config import *
 import nest_asyncio
+from data_cleaning import cleaning
 
 # --- /Imports
 
 nest_asyncio.apply()
 
-async def scrapper(query):
+async def scraper(query):
 
     async with async_playwright() as p:
 
-        # --- Dictionary to store the results
-        results = {'card_results': [], 'card_url': [], 'card_plus_code': []}
+        results = []
 
         URL = Config.url + query.replace(" ", "+")  # --- Constructing the URL based on the query
 
@@ -41,8 +41,8 @@ async def scrapper(query):
 
                 # --- Extracting the card name before clicking on it to avoid stale element reference errors    
                 
-                name = await card.text_content(timeout=3000)
-                print(f"Name:\n{name[:80]}")
+                card_content = await card.text_content(timeout=3000)
+                print(f"Name:\n{card_content[:80]}")
         
                 await card.click(timeout=7000)
 
@@ -52,17 +52,21 @@ async def scrapper(query):
 
                     # --- Plus Code Extraction 
                 plus_code = await page.locator('button[data-item-id^="oloc"]').text_content(timeout=2000)
-                print("Plus Code:", plus_code)
 
                     # --- Card link Extraction 
-                link = await card.locator("a").first.get_attribute("href")
+                link = page.url
+
+                place_name = await page.locator('span.xxVWCe')
+
+                    # --- Calling the data_cleaning function to clean and extract the required data from the link and plus code
+                cleaned_data = cleaning(link, plus_code, card_content, place_name)
+
+                results.append(cleaned_data)
+
+                print("Cleaned Data:", cleaned_data)
+                print("Results:", results)
                 print("Link:", link)
-
-                # --- End of card details
-
-                results['card_results'].append(name)
-                results['card_url'].append(link)
-                results['card_plus_code'].append(plus_code)
+                print("Plus Code:", plus_code)
 
             except Exception as e:
 
@@ -75,4 +79,4 @@ async def scrapper(query):
         return results
 
 if __name__ == "__main__":
-    results = asyncio.run(scrapper("restaurantes em cotia"))
+    cleaned_data = asyncio.run(scraper("restaurantes em cotia"))
