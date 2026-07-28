@@ -1,18 +1,15 @@
 import re
 import pandas as pd
 
-def cleaning(link: str, plus_code: str, card_content: str, place_name: str) -> dict:
+def cleaning(link: str, plus_code: str, card_content: str, title: str) -> dict:
 
-    # Using the card content to extract the place name and coordinates (latitude and longitude)
+    # Using the title to extract the place name and coordinates (latitude and longitude)
 
-    #place_name = re.search(r'^(.*?)\s{2,}', card_content).group(1)
-    #len_name = len(place_name)
-    #print(place_name[:len_name//2])
+    place_name = title.split(' - ')[0].strip()
 
     # Using regex to extract the rating from the card content
 
-    rate = re.search(r'(\d+,\d+)', card_content).group(1)
-    print(rate)
+    rate = re.search(r'(\d+,\d+)', card_content).group(1) if rate else None
 
     # Using regex to extract latitude and longitude from the link
 
@@ -54,6 +51,6 @@ def cleaning(link: str, plus_code: str, card_content: str, place_name: str) -> d
         #--- Floats
 
         "rating": rate,
-        "Latitude": latitude,
-        "Longitude": longitude
+        "latitude": latitude,
+        "longitude": longitude
     }

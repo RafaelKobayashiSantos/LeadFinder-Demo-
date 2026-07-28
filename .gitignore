@@ -6,8 +6,7 @@ venv/
 data/raw/*
 data/processed/*
 bases/*
-PBI.Report/*
-PBI.SemanticModel/*
+data_results/*
 
 
 *.csv

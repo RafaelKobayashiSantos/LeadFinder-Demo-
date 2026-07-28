@@ -50,16 +50,17 @@ async def scraper(query):
 
                 await page.wait_for_timeout(4500)
 
-                    # --- Plus Code Extraction 
+                    # --- Plus Code extraction 
                 plus_code = await page.locator('button[data-item-id^="oloc"]').text_content(timeout=2000)
 
-                    # --- Card link Extraction 
+                    # --- Card link extraction 
                 link = page.url
 
-                place_name = await page.locator('span.xxVWCe')
+                    # --- Current title extraction
+                title = await page.title()
 
                     # --- Calling the data_cleaning function to clean and extract the required data from the link and plus code
-                cleaned_data = cleaning(link, plus_code, card_content, place_name)
+                cleaned_data = cleaning(link, plus_code, card_content, title)
 
                 results.append(cleaned_data)
 
