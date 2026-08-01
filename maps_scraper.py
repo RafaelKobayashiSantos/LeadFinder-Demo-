@@ -22,20 +22,46 @@ async def scraper(query):
 
         # --- Launching the browser and setting up the page
 
-        browser = await p.chromium.launch(headless=Config.headless)  # --- Launching the browser in headless mode based on config
+        browser = await p.chromium.launch(headless=Config.headless,    
+        args=[
+        "--no-sandbox",
+        "--disable-setuid-sandbox"
+        ])  
+
+        # --- Launching the browser in headless mode based on config
+
         context = await browser.new_context(locale="en-US") # --- Defining the locale
         page = await context.new_page()
         await page.goto(URL, wait_until="domcontentloaded")
         await page.wait_for_timeout(5000)
 
-        await scroll_to_bottom(page)      # --- Scroll to the bottom of the page
+        try:
 
-        for i in range(Config.card_limit):    # --- Testing the first 10 cards
+            await scroll_to_bottom(page)      # --- Scroll to the bottom of the page
+
+        except:
+
+            print("")
+
+            
+        cards = page.locator('[role="article"]')
+
+        count =  await card.count()
+
+        if count == 0:
+            print(f'❌ No businesses found for "{query}".')
+            print("Please try another search.")
+            await browser.close()
+
+        limit = min(count, Config.card_limit)
+
+        for i in range(limit):    # --- Testing the first 10 cards
  
             print(f"\n========== CARD {i+1} ==========")
 
             # --- Recreating the card locator for each iteration to avoid stale element reference errors
-            card = page.locator('[role="article"]').nth(i)
+            
+            card = cards.nth(i)
 
             try:
 
@@ -71,7 +97,7 @@ async def scraper(query):
 
             except Exception as e:
 
-                print("Erro:", e)
+                print("Error:", e)
 
             await asyncio.sleep(2)
 
