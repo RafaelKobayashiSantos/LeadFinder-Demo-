@@ -46,7 +46,7 @@ async def scraper(query):
             
         cards = page.locator('[role="article"]')
 
-        count =  await card.count()
+        count =  await cards.count()
 
         if count == 0:
             print(f'❌ No businesses found for "{query}".')
